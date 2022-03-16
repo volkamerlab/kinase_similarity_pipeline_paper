@@ -335,7 +335,7 @@
 \titlespacing*{\subsubsection}{0pc}{2ex \@plus2.5pt \@minus1.5pt}{0pt}
 \titlespacing*{\paragraph}{0pc}{1.5ex \@plus2pt \@minus1pt}{0pt}
 
-\RequirePackage{enumitem}
+\RequirePackage[inline]{enumitem}
 \setlist{noitemsep}
 
 \RequirePackage{alphalph}

@@ -18,7 +18,7 @@ This paper is being developed as a living document, open to changes from the com
 
 ## List of Released Versions
 <!-- update this when you decide to release a version either by preprint or when submitted to LiveCoMS-->
-- v1.0: Submitted to LiveCoMS [WIP]
+- v0.1: Some pre-submission version of the manuscript
 
 ## Changelog
 <!-- Here, record summaries of important changes. A granular discussion of changes will be kept in GitHub by issue tracking.-->
