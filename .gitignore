@@ -4,3 +4,12 @@
 # VScode
 .vscode
 
+# Latex files
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.suppinfo
+*.synctex.gz
+
