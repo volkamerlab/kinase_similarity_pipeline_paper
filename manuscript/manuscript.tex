@@ -16,6 +16,7 @@
 \usepackage{lipsum} % Required to insert dummy text
 \usepackage[version=4]{mhchem}
 \usepackage{siunitx}
+\usepackage[nobiblatex]{xurl} % for url linebreak
 \DeclareSIUnit\Molar{M}
 \usepackage[italic]{mathastext}
 \graphicspath{{figures/}}
@@ -81,28 +82,32 @@
 \maketitle
 
 \begin{abstract}
-Kinases are established drug targets to combat cancer and inflammatory diseases. Despite decades of kinase research, challenges still remain, such as the under-exploration of a large fraction of the kinome and the promiscuous binding of many kinase inhibitors. Due to the highly conserved ATP binding site in kinases, ligands may bind not only to their designated kinase (on-target) but also to other kinases (off-targets). Such promiscuous binding can cause mild to severe side effects, and the prediction of these off-targets is highly non-trivial.
-Therefore, we propose a pipeline that allows the study of kinase similarities from four different angles in an automated and modular fashion. The first method considers the binding site sequence. The second method uses structural information via KiSSim, a newly developed fingerprint that considers both physico-chemical and spatial properties of the binding site. The third method involves kinase-ligand interaction fingerprints as provided by KLIFS, and the last method utilizes the measured activity of ligands on kinases based on ChEMBL data. Finally, results for a given set of kinases are collected and analyzed to gain insight into potential off-targets from the different aforementioned perspectives. Since the pipeline is set up as a series of Jupyter notebooks covering both theoretical and practical aspects, the target audience ranges from beginners to advanced users working in the field of natural and computer sciences. The pipeline is part of the TeachOpenCADD project and extends it with this special kinase edition.
+Kinases are established drug targets to combat cancer and inflammatory diseases. Despite decades of kinase research, challenges still remain, such as the under-exploration of a large fraction of the kinome and the promiscuous binding of many kinase inhibitors. Due to the highly conserved orthosteric ATP binding site in kinases, ligands may bind not only to their designated kinase (on-target) but also to other kinases (off-targets). Such promiscuous binding can cause mild to severe side effects, and the prediction of these off-targets is highly non-trivial.
+Therefore, we propose a pipeline that allows the study of kinase similarities from four different angles in an automated and modular fashion. The first method considers the binding site sequence. The second method uses structural information via KiSSim, a newly developed fingerprint that considers both physico-chemical and spatial properties of the binding site. The third method involves kinase-ligand interaction fingerprints as provided by KLIFS, and the last method utilizes the measured activity of ligands on kinases based on ChEMBL data. Finally, results for a given set of kinases are collected and analyzed to gain insight into potential off-targets from the different aforementioned perspectives. Since the pipeline is set up as a series of Jupyter notebooks covering both theoretical and practical aspects, the target audience ranges from beginners to advanced users working in the field of natural and computer sciences. The pipeline is part of the TeachOpenCADD project and extends it with this special kinase edition. All code is free, open-source, and made available at \href{https://github.com/volkamerlab/teachopencadd
+}{https://github.com/volkamerlab/teachopencadd
+}.
 \end{abstract}
 
 \end{frontmatter}
 
 \section{Introduction}
-Kinases are involved in most cellular processes by phosphorylating\textemdash and thereby activating\textemdash themselves or other proteins. This family is among the most frequently mutated proteins in tumors and has been successfully studied as drug targets for many decades~\cite{Cohen_2021_NatRevDrugDiscov}. Thanks to the longstanding research, a plethora of kinase data is freely available, i.e. as part of databases such as UniProt~\cite{uniprot_consortium_2020_nar}, PDB~\cite{Berman_2000_NAR} or ChEMBL~\cite{Gaulton_2016_nar}, and has been made easily accessible via kinase resources such as the KLIFS\textemdash Kinase-Ligand Interaction Fingerprints and Structures\textemdash database~\cite{Kanev_2020_NAR}. As of February 2022, $5\,911$ X-ray structures of human kinases have been resolved (see the KLIFS database~\cite{klifs_feb_2022}) and $70$ FDA-approved small molecule protein kinase inhibitors are on the market~\cite{FDA_PKI_2022}. Most of the approved drugs bind in the ATP-binding pocket and intermediate surroundings.
+Kinases are involved in most cellular processes by phosphorylating\textemdash and thereby activating\textemdash themselves or other proteins. This family is among the most frequently mutated proteins in tumors and has been successfully studied as drug targets for many decades~\cite{Cohen_2021_NatRevDrugDiscov}. Thanks to the longstanding research, a plethora of kinase data is freely available, i.e. as part of databases such as UniProt~\cite{uniprot_consortium_2020_nar}, PDB~\cite{Berman_2000_NAR} or ChEMBL~\cite{Gaulton_2016_nar}, and has been made easily accessible via kinase resources such as the KLIFS\textemdash Kinase-Ligand Interaction Fingerprints and Structures\textemdash database~\cite{Kanev_2020_NAR}. As of February 2022, $5\,911$ X-ray structures of human kinases have been resolved (see the KLIFS database~\cite{klifs_feb_2022}) and $70$ FDA-approved small molecule protein kinase inhibitors are on the market~\cite{FDA_PKI_2022}. Most of the approved drugs bind in the ATP-binding pocket and intermediate surroundings (orthosteric binding site).
 
 Although structural information provides rich information, kinases have been widely classified based on sequence. \citet{Manning_2022_science} clustered the human protein kinases based on their sequence similarity into eight major groups (AGC, CAMK, CK1, CMGC, RGC, STE, TK, TKL) and one “Other” group for unassigned kinases, as well as atypical kinases. The resulting Manning kinome tree depicts kinase clustering (see Figure~\ref{fig:kinmap}).
 
 Despite decades of kinase research, challenges still remain~\cite{Kooistra_2017_AnnualReportsMedicinalChemistry}. For example: \begin{enumerate}
     \item A large fraction of the kinome is un-/underexplored. Figure~\ref{fig:structure_per_kinase} shows the number of PDB structures per kinase, unveiling a vast imbalance between structurally resolved kinases and unexplored ones. For example, CDK2 has been resolved in $426$ PDB structures, while only $313$ kinases~\cite{klifs_feb_2022} out of approximately $540$ in the kinome~\cite{Kooistra_2017_AnnualReportsMedicinalChemistry} have been structurally resolved.
-    \item Many kinase inhibitors are promiscuous binders causing off-target effects or enabling polypharmacology. For example, the Epidermal Growth Factor Receptor~(EGFR) inhibitor Erlotinib shows affinities to other kinases in the highly sequentially-similar TK kinase group, but also strongly affects off-targets in more remote kinase groups (see Figure\ref{fig:off_target}).
+    \item Many kinase inhibitors are promiscuous binders causing off-target effects or enabling polypharmacology ~\cite{Cohen_2021_NatRevDrugDiscov, Morphy_2009_JMedChem}. For example, the Epidermal Growth Factor Receptor~(EGFR) inhibitor erlotinib shows affinities to other kinases in the highly sequentially-similar TK kinase group, but also strongly affects off-targets in more remote kinase groups (see Figure\ref{fig:off_target}).
 \end{enumerate}
 
 Therefore, assessing kinase similarity from different angles may be a crucial step in understanding and predicting off-targets to help designing more selective drugs and avoiding side effects.
 
 \subsection{Scope}
-In this study, similarities between a set of kinases are investigated based on methods offering different perspectives on this challenging topic, as summarized in Table~\ref{tab:notebook_overview}. The first method considers the binding site sequence as deposited in the KLIFS database. The second method uses KiSSim~\cite{sydow_2021_kissim_chemrxiv}, a recently developed fingerprint that considers physico-chemical as well as spatial properties of the binding site. The third method involves protein-ligand interaction fingerprints as provided in the KLIFS database, and the last method utilizes the measured activity of ligands against kinases based on ChEMBL data~\cite{Gaulton_2016_nar}. The different methods are preceded by a general introduction to kinases and the challenges faced during kinase-centric drug design, and succeeded by a comparison between the different kinase similarity methods.
+In this study, similarities between a set of kinases are investigated based on methods offering different perspectives on this challenging topic with a focus on orthosteric binding sites (here referred to as binding sites), as summarized in Table~\ref{tab:notebook_overview}. The first method considers the binding site sequence as deposited in the KLIFS database. The second method uses KiSSim~\cite{sydow_2021_kissim_chemrxiv}, a recently developed fingerprint that considers physico-chemical as well as spatial properties of the binding site. The third method involves protein-ligand interaction fingerprints as provided in the KLIFS database, and the last method utilizes the measured activity of ligands against kinases based on ChEMBL data~\cite{Gaulton_2016_nar}. The different methods are preceded by a general introduction to kinases and the challenges faced during kinase-centric drug design, and succeeded by a comparison between the different kinase similarity methods.
 
-Moreover, this study has been put together into a modular pipeline that enables the research of kinase similarities in an automated fashion, allowing users to simply use it out of the box, or adapt it to their needs.
+Please note that this study focuses on the similarities between ATP binding sites. Therefore, kinase polypharmacology and off-targets can only be assessed within the scope of orthosteric binding sites, even though the promiscuity of some ligands may be explained by binding to allosteric binding sites (potential allosteric binding sites are summarized in the Kinase Atlas~\cite{Yueh_2019_JMedChem}).  
+
+This study has been put together into a modular pipeline that enables the research of kinase similarities in an automated fashion, allowing users to simply use it out of the box, or adapt it to their needs.
 
 \begin{table*}
     \centering
@@ -111,29 +116,34 @@ Moreover, this study has been put together into a modular pipeline that enables 
     \label{tab:notebook_overview}
 \end{table*}
 
-\begin{figure}
+\begin{figure*}
      \centering
-     \begin{subfigure}[b]{0.2\textwidth}
+     \begin{subfigure}[b]{0.45\textwidth}
          \centering
          \includegraphics[width=\textwidth]{kinmap_n_structures_per_kinase.png}
-         \caption{Number of PDB structures per kinase. The figure shows the imbalance between highly explored kinases, e.g. groups: TK, CMGC, and CAMK, and less explored ones, e.g. the CK1 group. CDK2 has the most structures ($426$). The red circle is proportional to the number of PDB structures, such that the greater is the circle, the higher is the number of structures.}
+         \caption{Number of PDB structures per kinase. The figure shows the imbalance between highly explored kinases, e.g. groups: TK, CMGC, and CAMK, and less explored ones, e.g. the CK1 group. CDK2 has the most structures, with $426$. The red circle is proportional to the number of PDB structures for each kinase, such that the greater is the circle, the higher is the number of structures.}
          \label{fig:structure_per_kinase}
      \end{subfigure}
      \hfill
-     \begin{subfigure}[b]{0.2\textwidth}
+     \begin{subfigure}[b]{0.45\textwidth}
          \centering
          \includegraphics[width=\textwidth]{kinmap_erlotinib_karaman.png}
          \caption{Developing selective kinase inhibitors is non-trivial since kinases are highly conserved in the ATP binding site. EGFR inhibitor Erlobinib binds not only to its intended target EGFR, but also to kinases in remote groups, such as SLK/LOK in the STE group and GAK in the CMGC group. The blue circle is proportional to the $K_d$ value in \SI{}{\nano\Molar} taken from the \citet{Karaman_2008_NatBiotechnol} dataset.}
          \label{fig:off_target}
      \end{subfigure}
-        \caption{Visual representation using the Manning tree of existing challenges in kinase research: un-/underexplored kinase groups (left) and the promiscuity character of kinases (right). The figure is taken from \href{https://projects.volkamerlab.org/teachopencadd/}{https://projects.volkamerlab.org/teachopencadd/} and is generated using KinMap~\cite{Eid_2017_BMCBioinformatics}.}
+        \caption{Visual representation using the Manning tree of existing challenges in kinase research: un-/underexplored kinase groups (left) and the promiscuity character of kinases (right). The figure is taken from \href{https://projects.volkamerlab.org/teachopencadd/talktorials/T023\_what\_is\_a\_kinase.html}{https://projects.volkamerlab.org/teachopencadd/talktorials/T023\_what\_is\_a\_kinase.html} and is generated using KinMap~\cite{Eid_2017_BMCBioinformatics}.}
         \label{fig:kinmap}
-\end{figure}
+\end{figure*}
 
+This workflow is integrated in the context of TeachOpenCADD \cite{Sydow_2019_JCheminform, sydow_2022_nar}, a teaching platform for computer-aided drug design (CADD) using open-source packages and data. Specific tasks in cheminformatics and structural bioinformatic are described and solved using Python-based Jupyter notebooks \cite{Kluyver_2016_Jupyter} as interacting platform. All code has been deposited on GitHub, see
+\\
+\href{https://github.com/volkamerlab/teachopencadd}{https://github.com/volkamerlab/teachopencadd}. And the project website can be found at this link,
+\\
+\href{https://projects.volkamerlab.org/teachopencadd/}{https://projects.volkamerlab.org/teachopencadd/}. 
 \section{Prerequisites}
 \subsection{Target audience}
 The notebooks were developed to support researchers interested in kinase-centric computational drug design with a focus on understanding and predicting kinase off-targets. 
-As this collection is part of the TeachOpenCADD~\cite{Sydow_2019_JCheminform, Sydow_2021_toc_chemrxiv} training material, we also recommend the notebooks to teachers as pedagogical interactive material in structural bioinformatics and cheminformatics.
+As this collection is part of the TeachOpenCADD~\cite{Sydow_2019_JCheminform, sydow_2022_nar} training material, we also recommend the notebooks to teachers as pedagogical interactive material in structural bioinformatics and cheminformatics.
 
 \subsection{Background knowledge}
 The notebooks are constructed in a way that no in depth prior knowledge besides an affinity for the natural or computer sciences is required. Each notebook eases into the topic of kinase drug development and kinase similarity with a lot of theoretical background and comments on all content as well as programming-related steps in great detail. Nevertheless, users will benefit from a basic understanding of the Python programming language and the usage of Jupyter notebooks. If such basic introduction is needed, please refer to training material as listed on the TeachOpenCADD website~\cite{toc_python_2022}.
@@ -141,11 +151,11 @@ The notebooks are constructed in a way that no in depth prior knowledge besides 
 \subsection{Software requirements}
 The notebooks are written in Python and rely on open-source packages such as pandas~\cite{pandas_2020}, numpy~\cite{harris_2020_numpy}, scipy~\cite{Virtanen_2020_NMeth}, matplotlib~\cite{Hunter_2007_IEEE}, seaborn~\cite{Waskom_2021_seaborn}, scikit-learn~\cite{Pedregosa_2011_JMLR}, rdkit~\cite{RDKit_2022}, biotite~\cite{Kunzmann_2018_biotite}, opencadd~\cite{Sydow_2022_JOSS}, requests~\cite{requests_2022}, and pillow~\cite{pillow_2022}.
 
-The user only needs to install the \textit{teachopencadd} conda-forge package~\cite{toc_conda_forge_2022} (see installation~\cite{toc_website_installing}), which will install all relevant packages and save a copy of all TeachOpenCADD notebooks\textemdash including the kinase edition discussed in this paper\textemdash on the user's local machine. A read-only mode of the notebooks is accessible via the TeachOpenCADD website at \href{https://projects.volkamerlab.org/teachopencadd/}{https://projects.volkamerlab.org/teachopencadd/}.
+The user only needs to install the \textit{teachopencadd} conda-forge package~\cite{toc_conda_forge_2022} (see installation~\cite{toc_website_installing}), which will install all relevant packages and save a copy of all TeachOpenCADD notebooks\textemdash including the kinase edition discussed in this paper\textemdash on the user's local machine. A read-only mode of the notebooks is accessible via the TeachOpenCADD website at \href{https://projects.volkamerlab.org/teachopencadd/}{https://projects.volkamerlab.org/teachopencadd/}. Online execution can be done via Binder \cite{binder_2018}, using the following link \url{https://mybinder.org/v2/gh/volkamerlab/TeachOpenCADD/master}.
 
 \section{Method}
 \label{sec:method}
-In this section, the four methods that are introduced to quantify kinase similarity are described, namely the pocket sequence, the KiSSim fingerprint, the interaction fingerprint, and the ligand profile. Note that the theoretical and practical aspects of each method are also covered in great detail in the individual notebooks of this kinase collection (Table~\ref{tab:notebook_overview}).
+In this section, the four methods that are introduced to quantify kinase similarity are described, namely the pocket sequence, the KiSSim fingerprint, the interaction fingerprint, and the ligand profile. Note that the theoretical and practical aspects of each method are also covered in great detail in the individual notebooks of this kinase collection (Table~\ref{tab:notebook_overview}). As discussed in the "Scope" section of this manuscript, we focus on kinase similarities based on orthosteric binding sites.
 
 \subsection{Pocket sequence}
 The full amino acid sequence is often used to assess similarities between kinases (see the phylogenetic tree developed by \citet{Manning_2022_science}). Since binding sites are often more conserved than the whole protein, \citet{van_Linden_2013_JMedChem} defined as part of KLIFS a $85$-long pocket sequence that is aligned across the kinome. Using a sequence that focuses on the binding site seems appropriate in the case of kinases, since this is where the ligand is likely to bind. Moreover, working with a fixed length sequence is practical from a computational point of view. 
@@ -286,11 +296,11 @@ The clustering and plotting is done using Scikit-learn~\cite{Pedregosa_2011_JMLR
 \begin{figure*}
     \centering
     \includegraphics[width=\textwidth]{all_comparison.png}
-    \caption{Visualization for kinase similarity from for different angles: sequence, KiSSim, interaction fingerprint~(ifp) as well as ligand profile. The top, bottom row shows four heatmaps, dendrograms respectively for a set of nine study kinases.}
+    \caption{Visualization of kinase similarity from four different angles: sequence, KiSSim, interaction fingerprint~(ifp) as well as ligand profile. The top, bottom row shows four heatmaps, dendrograms respectively for a set of nine study kinases.}
     \label{fig:comparison}
 \end{figure*}
 
-For fair comparison, the distance matrices for all four methods are normalized so that each entry lives between $0$ and $1$. Similarity matrices\textemdash as used for the heatmaps\textemdash are then computed using $1-$distance matrix.
+For fair comparison, the distance matrices for all four methods are normalized so that each entry lives between $0$ and $1$. Similarity matrices\textemdash as used for the heatmaps\textemdash are then computed using $1-$distance matrix. Contrary to the dendrograms, that use the distance matrix.
 
 \section{Pipeline}
 Measuring kinase similarity is a non-trivial task; distinct measures can provide different insights, which can be complementary, confirmatory, or contradictory, and therefore expand our knowledge on the target(s) at hand. 
@@ -306,7 +316,7 @@ The proposed pipeline is a collection of six Jupyter notebooks~\cite{Kluyver_201
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\columnwidth]{Pipeline.png}
-    \caption{The proposed pipeline consists of six Jupyter notebooks~\cite{Kluyver_2016_Jupyter}. Given a set of kinases in a CSV format, four similarity measures are implemented, and kinases are compared using heatmaps and dendrograms. The project is part of TeachOpenCADD~\cite{Sydow_2019_JCheminform, Sydow_2021_toc_chemrxiv} and uses open-source tools and databases such as KLIFS~\cite{Kanev_2020_NAR} and ChEMBL~\cite{Gaulton_2016_nar}.}
+    \caption{The proposed pipeline consists of six Jupyter notebooks~\cite{Kluyver_2016_Jupyter}. Given a set of kinases in a CSV format, four similarity measures are implemented, and kinases are compared using heatmaps and dendrograms. The project is part of TeachOpenCADD~\cite{Sydow_2019_JCheminform, sydow_2022_nar} and uses open-source tools and databases such as KLIFS~\cite{Kanev_2020_NAR} and ChEMBL~\cite{Gaulton_2016_nar}.}
     \label{fig:pipeline}
 \end{figure}
 
@@ -329,13 +339,14 @@ The pipeline can be executed out-of-the box with the defined set of kinases, but
 
 The four following notebooks describe one similarity method at a time as discussed in Section~\ref{sec:method}: the pocket sequence, the KiSSim fingerprint, the interaction fingerprint, and the ligand profile.
 
-The final notebook collects the information from the previous ones and compares the different perspectives with easy-to-understand visualization such as heatmaps and dendrograms (see Section~\ref{sec:comparison}).
+The final notebook collects the information from the previous ones and compares the different perspectives with easy-to-understand visualization such as heatmaps and dendrograms (see Section~\ref{sec:comparison}). Additionally, an equally weighted average to combine distance and similarity matrices of all four perspectives can be computed, yielding a single heatmap, and a single dendrogram. The user can easily extend this to a knowledge-informed weighted scheme based on their own research focus.
 
 \subsection{Features of the pipeline}
-The developed pipeline contains many useful features. Firstly, it is part of the TeachOpenCADD project~\cite{Sydow_2019_JCheminform, Sydow_2021_toc_chemrxiv} and extends it with this special kinase edition. Being part of TeachOpenCADD has the following advantages:
+The developed pipeline contains many useful features. Firstly, it is part of the TeachOpenCADD project~\cite{Sydow_2019_JCheminform, sydow_2022_nar} and extends it with this special kinase edition. Being part of TeachOpenCADD has the following advantages:
 \begin{enumerate}
     \item TeachOpenCADD is open-source and freely available at \href{https://github.com/volkamerlab/teachopencadd}{https://github.com/volkamerlab/teachopencadd}, the project being licensed under the Attribution 4.0 International (CC BY 4.0).
     \item A dedicated conda package~\cite{conda_forge} facilitates installation.
+    \item Online execution is possible via the Binder project \cite{binder_2018}.
     \item The teaching approach makes the notebooks easy to follow.
 \end{enumerate}
 Moreover, the pipeline is easily adaptable to new sets of kinases defined by an external user, as well as new similarity methods.
@@ -378,7 +389,7 @@ In this study, a full pipeline for the assessment of kinase similarity is presen
 
 We encourage users to develop their own similarity methods and to contribute to the existing pipeline.
 
-This paper is a shout-out to
+This paper could be of interest to
 \begin{enumerate}
     \item researchers who want to gain insights into off-target prediction and kinase similarities, and integrate their new comparison methods to a working workflow,
     \item beginners in software development who need inspiration to set up a fully functional pipeline,
