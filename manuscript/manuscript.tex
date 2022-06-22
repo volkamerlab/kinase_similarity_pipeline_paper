@@ -167,7 +167,7 @@ More formally, given two kinase sequences \SeqA{} and \SeqB{} of same lengths $L
     \text{sequence identity(\SeqA{}, \SeqB{})} = \frac{1}{L} \sum_{n=1}^{L} I\big(\SeqA[n], \SeqB[n]\big),
 \end{equation}
 
-where $I$ is the identity matrix of the amino acids, and $\SeqA[n]$ the amino acid at position $n$ of the kinase sequence $\SeqA$. Note that not all kinases have residues present at each of the 85 alignment positions. Such gaps are represented by "-" and count as mismatch to any amino acid.
+where $I$ is the identity matrix of the amino acids, and $\SeqA[n]$ the amino acid at position $n$ of the kinase sequence $\SeqA$. Note that not all kinases have residues present at each of the $85$ alignment positions. Such gaps are represented by "-" and count as mismatch to any amino acid.
 
 \subsubsection{Sequence similarity}
 Unlike sequence identity which treats all residues uniformly, pairwise sequence similarity, or sequence similarity, takes into account the change of the amino acids over evolutionary time, thus, reflecting relationships between amino acids. It is based on a substitution matrix $M$, where each entry gives a score between two amino acids. In this study, the BLOSUM substitution matrix~\cite{Henikoff_1992_PNAS}, as implemented in biotite~\cite{Kunzmann_2018_BMC}, is used. Formally, the following is defined:
@@ -186,7 +186,7 @@ Figure~\ref{fig:pocket_sequence} shows the sequence similarity between the KLIFS
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.5\columnwidth]{sequence_similarity.png}
-    \caption{Sequence similarity between EGFR and MET. The $85$- residue pocket sequence is retrieved from KLIFS. The pairwise sequence similarity takes into account the change of the amino acids over evolutionary time.}
+    \caption{Sequence similarity between EGFR and MET. The $85$-residue pocket sequence is retrieved from KLIFS. The pairwise sequence similarity takes into account the change of the amino acids over evolutionary time.}
     \label{fig:pocket_sequence}
 \end{figure}
 
@@ -340,7 +340,7 @@ The developed pipeline contains many useful features. Firstly, it is part of the
     \item Online execution is possible via the Binder project \cite{binder_2018}.
     \item The teaching approach makes the notebooks easy to follow.
 \end{enumerate}
-Moreover, the pipeline is easily adaptable to new sets of kinases as well as new similarity methods, defined by an user.
+Moreover, the pipeline is easily adaptable to new sets of kinases as well as new similarity methods, defined by a user.
 
 \begin{table*}
 \centering
